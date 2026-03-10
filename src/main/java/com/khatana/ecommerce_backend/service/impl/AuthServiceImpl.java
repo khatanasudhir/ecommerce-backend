@@ -1,10 +1,13 @@
 package com.khatana.ecommerce_backend.service.impl;
 
+import com.khatana.ecommerce_backend.dto.auth.LoginRequestDTO;
+import com.khatana.ecommerce_backend.dto.auth.LoginResponseDTO;
 import com.khatana.ecommerce_backend.dto.auth.RegisterRequestDTO;
 import com.khatana.ecommerce_backend.dto.auth.RegisterResponseDTO;
 import com.khatana.ecommerce_backend.entity.Role;
 import com.khatana.ecommerce_backend.entity.User;
 import com.khatana.ecommerce_backend.repositry.UserRepository;
+import com.khatana.ecommerce_backend.security.JwtService;
 import com.khatana.ecommerce_backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +19,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public RegisterResponseDTO register(RegisterRequestDTO request) {
@@ -35,5 +39,24 @@ public class AuthServiceImpl implements AuthService {
         registerResponseDTO.setName(savedUser.getName());
         registerResponseDTO.setEmail(savedUser.getEmail());
         return registerResponseDTO;
+    }
+
+    @Override
+    public LoginResponseDTO login(LoginRequestDTO request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not Found"));
+
+        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if (!passwordMatches) {
+            throw new RuntimeException("Invalid Password");
+        }
+
+        String token = jwtService.generateToken(user.getEmail());
+
+        LoginResponseDTO responseDTO = new LoginResponseDTO();
+        responseDTO.setToken(token);
+
+        return responseDTO;
     }
 }
