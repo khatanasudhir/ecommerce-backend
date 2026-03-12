@@ -34,4 +34,12 @@ public class ProductController {
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
     }
+
+    @GetMapping("/category/{categoryId}")
+    public Page<ProductResponseDTO> getProductByCategoryId(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return productService.getProductsByCategory(categoryId, page, size);
+    }
 }

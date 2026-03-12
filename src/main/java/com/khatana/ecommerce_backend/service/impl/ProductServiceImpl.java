@@ -77,4 +77,14 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product Not Found"));
         productRepo.delete(product);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDTO> getProductsByCategory(Long categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<Product> productPage = productRepo.findByCategoryId(categoryId,pageable);
+
+        return productPage.map(this::mapToResponse);
+    }
 }
