@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class ProductController {
     public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO request) {
         return productService.createProduct(request);
     }
-    @GetMapping
+    @GetMapping("/all")
     public Page<ProductResponseDTO> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -26,20 +28,28 @@ public class ProductController {
 
         return productService.getAllProducts(page, size, sortBy);
     }
-    @GetMapping("/{id}")
-    public ProductResponseDTO getProduct(@PathVariable Long id) {
-        return productService.getProductById(id);
-    }
+
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
     }
 
-    @GetMapping("/category/{categoryId}")
-    public Page<ProductResponseDTO> getProductByCategoryId(
-            @PathVariable Long categoryId,
+    @GetMapping
+    public Page<ProductResponseDTO> getProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
-        return productService.getProductsByCategory(categoryId, page, size);
+
+        return productService.searchProducts(
+                name,
+                categoryId,
+                minPrice,
+                maxPrice,
+                page,
+                size
+        );
     }
 }

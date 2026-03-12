@@ -6,14 +6,22 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
+
 public interface ProductService {
     ProductResponseDTO createProduct(@Valid @RequestBody ProductRequestDTO request);
 
     Page<ProductResponseDTO> getAllProducts(int page,int size, String sortBy);
 
-    ProductResponseDTO getProductById(Long id);
 
     void deleteProduct(Long id);
 
-    Page<ProductResponseDTO> getProductsByCategory(Long categoryId, int page, int size);
+    Page<ProductResponseDTO> searchProducts(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            int page,
+            int size
+    );
 }

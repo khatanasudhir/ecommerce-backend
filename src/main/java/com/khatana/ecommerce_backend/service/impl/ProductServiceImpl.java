@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -63,13 +65,7 @@ public class ProductServiceImpl implements ProductService {
         response.setStockQuantity(product.getStockQuantity());
         return response;
     }
-    @Transactional(readOnly = true)
-    @Override
-    public ProductResponseDTO getProductById(Long id) {
-        Product product = productRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product Not Found"));
-        return mapToResponse(product);
-    }
+
     @Transactional
     @Override
     public void deleteProduct(Long id) {
@@ -78,12 +74,25 @@ public class ProductServiceImpl implements ProductService {
         productRepo.delete(product);
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public Page<ProductResponseDTO> getProductsByCategory(Long categoryId, int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
+    public Page<ProductResponseDTO> searchProducts(
+            String name,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            int page,
+            int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        Page<Product> productPage = productRepo.findByCategoryId(categoryId,pageable);
+        Page<Product> productPage = productRepo.searchProducts(
+                name,
+                categoryId,
+                minPrice,
+                maxPrice,
+                pageable
+        );
 
         return productPage.map(this::mapToResponse);
     }
