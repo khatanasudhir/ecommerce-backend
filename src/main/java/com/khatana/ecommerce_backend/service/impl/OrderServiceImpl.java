@@ -1,5 +1,8 @@
 package com.khatana.ecommerce_backend.service.impl;
 
+import com.khatana.ecommerce_backend.dto.order.OrderDetailResponseDTO;
+import com.khatana.ecommerce_backend.dto.order.OrderItemDTO;
+import com.khatana.ecommerce_backend.dto.order.OrderResponseDTO;
 import com.khatana.ecommerce_backend.entity.*;
 import com.khatana.ecommerce_backend.repositry.*;
 import com.khatana.ecommerce_backend.service.OrderService;
@@ -73,5 +76,49 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
 
         cartItemRepository.deleteByCart(cart);
+    }
+
+    @Override
+    public List<OrderResponseDTO> getUserOrders() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        List<Order> orders = orderRepository.findByUser(user);
+
+        return orders.stream().map(order -> new OrderResponseDTO(
+                order.getId(),
+                order.getTotalPrice(),
+                order.getStatus().name()
+        )).toList();
+    }
+
+    @Override
+    public OrderDetailResponseDTO getOrderById(Long orderId) {
+        Order order = orderRepository.findById(orderId).
+                orElseThrow(() -> new RuntimeException("Order not found"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        List<OrderItem> items = orderItemRepository.findByOrder(order);
+
+        List<OrderItemDTO> itemDTOS = items.stream().map(item -> new OrderItemDTO(
+                item.getProductName(),
+                item.getProductPrice(),
+                item.getQuantity()
+        )).toList();
+
+        return new OrderDetailResponseDTO(
+                order.getId(),
+                order.getTotalPrice(),
+                order.getStatus().name(),
+                itemDTOS
+        );
     }
 }
