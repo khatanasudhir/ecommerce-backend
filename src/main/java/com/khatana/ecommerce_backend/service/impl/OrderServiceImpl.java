@@ -3,10 +3,14 @@ package com.khatana.ecommerce_backend.service.impl;
 import com.khatana.ecommerce_backend.dto.order.OrderDetailResponseDTO;
 import com.khatana.ecommerce_backend.dto.order.OrderItemDTO;
 import com.khatana.ecommerce_backend.dto.order.OrderResponseDTO;
+import com.khatana.ecommerce_backend.dto.order.PageResponseDTO;
 import com.khatana.ecommerce_backend.entity.*;
 import com.khatana.ecommerce_backend.repositry.*;
 import com.khatana.ecommerce_backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -79,18 +83,33 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponseDTO> getUserOrders() {
+    public PageResponseDTO<OrderResponseDTO> getUserOrders(int page, int size) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         User user = (User) authentication.getPrincipal();
 
-        List<Order> orders = orderRepository.findByUser(user);
+        Pageable pageable = PageRequest.of(page, size);
 
-        return orders.stream().map(order -> new OrderResponseDTO(
-                order.getId(),
-                order.getTotalPrice(),
-                order.getStatus().name()
-        )).toList();
+        Page<Order> orders = orderRepository.findByUser(user, pageable);
+
+        List<OrderResponseDTO> content = orders.getContent()
+                .stream()
+                .map(order -> new OrderResponseDTO(
+                        order.getId(),
+                        order.getTotalPrice(),
+                        order.getStatus().name()
+                ))
+                .toList();
+
+        return new PageResponseDTO<>(
+                content,
+                orders.getNumber(),
+                orders.getSize(),
+                orders.getTotalElements(),
+                orders.getTotalPages(),
+                orders.isLast()
+        );
     }
 
     @Override

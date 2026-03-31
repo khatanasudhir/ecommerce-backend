@@ -2,14 +2,13 @@ package com.khatana.ecommerce_backend.service;
 
 import com.khatana.ecommerce_backend.dto.order.OrderDetailResponseDTO;
 import com.khatana.ecommerce_backend.dto.order.OrderResponseDTO;
-
-import java.util.List;
+import com.khatana.ecommerce_backend.dto.order.PageResponseDTO;
 
 public interface OrderService {
 
     void checkout();
 
-    List<OrderResponseDTO> getUserOrders();
+    PageResponseDTO<OrderResponseDTO> getUserOrders(int page, int size);
 
     OrderDetailResponseDTO getOrderById(Long orderId);
 }
