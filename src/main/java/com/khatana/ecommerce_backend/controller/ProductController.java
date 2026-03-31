@@ -5,6 +5,7 @@ import com.khatana.ecommerce_backend.dto.product.ProductResponseDTO;
 import com.khatana.ecommerce_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO request) {
         return productService.createProduct(request);
@@ -28,7 +30,7 @@ public class ProductController {
 
         return productService.getAllProducts(page, size, sortBy);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

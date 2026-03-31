@@ -11,4 +11,6 @@ public interface OrderService {
     PageResponseDTO<OrderResponseDTO> getUserOrders(int page, int size);
 
     OrderDetailResponseDTO getOrderById(Long orderId);
+
+    void updateOrderStatus(Long orderId,String status);
 }

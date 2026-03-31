@@ -30,7 +30,11 @@ public class AuthServiceImpl implements AuthService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(encodedPassword);
 
-        user.setRole(Role.USER);
+        if (request.getRole() == null) {
+            user.setRole(Role.USER);
+        } else {
+            user.setRole(Role.valueOf(request.getRole().toUpperCase()));
+        }
 
         User savedUser = userRepository.save(user);
 

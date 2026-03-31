@@ -140,4 +140,18 @@ public class OrderServiceImpl implements OrderService {
                 itemDTOS
         );
     }
+
+    @Override
+    public void updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new RuntimeException("Order not Found"));
+
+        try {
+            order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid Order Status");
+        }
+
+        orderRepository.save(order);
+    }
 }
