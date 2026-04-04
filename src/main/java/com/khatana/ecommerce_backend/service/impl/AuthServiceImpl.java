@@ -6,6 +6,7 @@ import com.khatana.ecommerce_backend.dto.auth.RegisterRequestDTO;
 import com.khatana.ecommerce_backend.dto.auth.RegisterResponseDTO;
 import com.khatana.ecommerce_backend.entity.Role;
 import com.khatana.ecommerce_backend.entity.User;
+import com.khatana.ecommerce_backend.exception.ResourceNotFoundException;
 import com.khatana.ecommerce_backend.repositry.UserRepository;
 import com.khatana.ecommerce_backend.security.JwtService;
 import com.khatana.ecommerce_backend.service.AuthService;
@@ -48,12 +49,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not Found"));
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!passwordMatches) {
-            throw new RuntimeException("Invalid Password");
+            throw new ResourceNotFoundException("Invalid Password");
         }
 
         String token = jwtService.generateToken(user.getEmail());

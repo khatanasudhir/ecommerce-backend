@@ -2,6 +2,7 @@ package com.khatana.ecommerce_backend.controller;
 
 import com.khatana.ecommerce_backend.dto.product.ProductRequestDTO;
 import com.khatana.ecommerce_backend.dto.product.ProductResponseDTO;
+import com.khatana.ecommerce_backend.payload.ApiResponse;
 import com.khatana.ecommerce_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,12 +24,16 @@ public class ProductController {
         return productService.createProduct(request);
     }
     @GetMapping("/all")
-    public Page<ProductResponseDTO> getAllProducts(
+    public ApiResponse<Page<ProductResponseDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
 
-        return productService.getAllProducts(page, size, sortBy);
+        return new ApiResponse<>(
+                true,
+                "Product fetched Successfully",
+                productService.getAllProducts(page, size, sortBy)
+        );
     }
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")

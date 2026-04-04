@@ -8,6 +8,7 @@ import com.khatana.ecommerce_backend.entity.Cart;
 import com.khatana.ecommerce_backend.entity.CartItem;
 import com.khatana.ecommerce_backend.entity.Product;
 import com.khatana.ecommerce_backend.entity.User;
+import com.khatana.ecommerce_backend.exception.ResourceNotFoundException;
 import com.khatana.ecommerce_backend.repositry.CartItemRepository;
 import com.khatana.ecommerce_backend.repositry.CartRepository;
 import com.khatana.ecommerce_backend.repositry.ProductRepo;
@@ -39,7 +40,7 @@ public class CartServiceImpl implements CartService {
         User user = (User) authentication.getPrincipal();
 
         Product product = productRepo.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         Cart cart = cartRepository.findByUser(user)
                 .orElseGet(() -> {
@@ -78,7 +79,7 @@ public class CartServiceImpl implements CartService {
         User user = (User) authentication.getPrincipal();
 
         Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
         List<CartItem> cartItems = cartItemRepository.findByCart(cart);
 
@@ -106,11 +107,11 @@ public class CartServiceImpl implements CartService {
         User user = (User) authentication.getPrincipal();
 
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart Item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
 
         assert user != null;
         if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized cart access");
+            throw new ResourceNotFoundException("Unauthorized cart access");
         }
 
         if (request.getQuantity() <= 0) {
@@ -130,11 +131,11 @@ public class CartServiceImpl implements CartService {
         User user = (User) authentication.getPrincipal();
 
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart Item not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
 
         assert user != null;
         if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized cart access");
+            throw new ResourceNotFoundException("Unauthorized cart access");
         }
 
         cartItemRepository.delete(cartItem);

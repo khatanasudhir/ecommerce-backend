@@ -5,6 +5,8 @@ import com.khatana.ecommerce_backend.dto.order.OrderItemDTO;
 import com.khatana.ecommerce_backend.dto.order.OrderResponseDTO;
 import com.khatana.ecommerce_backend.dto.order.PageResponseDTO;
 import com.khatana.ecommerce_backend.entity.*;
+import com.khatana.ecommerce_backend.exception.BadRequestFoundException;
+import com.khatana.ecommerce_backend.exception.ResourceNotFoundException;
 import com.khatana.ecommerce_backend.repositry.*;
 import com.khatana.ecommerce_backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +38,12 @@ public class OrderServiceImpl implements OrderService {
         User user = (User) authentication.getPrincipal();
 
         Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
         List<CartItem> items = cartItemRepository.findByCart(cart);
 
         if (items.isEmpty()) {
-            throw new RuntimeException("Cart is Empty");
+            throw new ResourceNotFoundException("Cart is Empty");
         }
 
         Order order = new Order();
@@ -57,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow();
 
             if (product.getStockQuantity() < item.getQuantity()) {
-                throw new RuntimeException("Insufficient stock for product: "
+                throw new BadRequestFoundException("Insufficient stock for product: "
                         + product.getName());
             }
             product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
@@ -115,14 +117,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetailResponseDTO getOrderById(Long orderId) {
         Order order = orderRepository.findById(orderId).
-                orElseThrow(() -> new RuntimeException("Order not found"));
+                orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         User user = (User) authentication.getPrincipal();
 
         if (!order.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new ResourceNotFoundException("Unauthorized access");
         }
 
         List<OrderItem> items = orderItemRepository.findByOrder(order);
@@ -144,12 +146,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrderStatus(Long orderId, String status) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new RuntimeException("Order not Found"));
+                () -> new ResourceNotFoundException("Order not Found"));
 
         try {
             order.setStatus(OrderStatus.valueOf(status.toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid Order Status");
+            throw new ResourceNotFoundException("Invalid Order Status");
         }
 
         orderRepository.save(order);

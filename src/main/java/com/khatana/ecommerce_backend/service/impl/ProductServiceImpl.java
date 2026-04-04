@@ -4,6 +4,7 @@ import com.khatana.ecommerce_backend.dto.product.ProductRequestDTO;
 import com.khatana.ecommerce_backend.dto.product.ProductResponseDTO;
 import com.khatana.ecommerce_backend.entity.Category;
 import com.khatana.ecommerce_backend.entity.Product;
+import com.khatana.ecommerce_backend.exception.ResourceNotFoundException;
 import com.khatana.ecommerce_backend.repositry.CategoryRepo;
 import com.khatana.ecommerce_backend.repositry.ProductRepo;
 import com.khatana.ecommerce_backend.service.ProductService;
@@ -26,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         Category category = categoryRepo.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category Not Found"));
 
         Product product = new Product();
         product.setName(request.getName());
@@ -70,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         Product product = productRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product Not Found"));
         productRepo.delete(product);
     }
 
