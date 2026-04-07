@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public interface ProductService {
     ProductResponseDTO createProduct(@Valid @RequestBody ProductRequestDTO request);
 
-    Page<ProductResponseDTO> getAllProducts(int page,int size, String sortBy);
+    Page<ProductResponseDTO> getAllProducts(int page, int size, String sortBy);
 
 
     void deleteProduct(Long id);
