@@ -37,27 +37,11 @@ http://localhost:8090/swagger-ui.html
 
 ---
 
-## 🐳 Run with Docker
-
-### Build Image
-
-```bash
-docker build -t ecommerce-app .
-```
-
-### Run Container
-
-```bash
-docker run -p 8090:8090 ecommerce-app
-```
-
----
-
 ## ⚙️ Run Locally
 
 ```bash
-mvn clean install
-mvn spring-boot:run
+mvn clean package
+docker-compose up --build
 ```
 
 ---
