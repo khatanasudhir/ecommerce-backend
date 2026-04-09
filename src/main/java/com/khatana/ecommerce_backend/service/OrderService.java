@@ -1,8 +1,6 @@
 package com.khatana.ecommerce_backend.service;
 
-import com.khatana.ecommerce_backend.dto.order.OrderDetailResponseDTO;
-import com.khatana.ecommerce_backend.dto.order.OrderResponseDTO;
-import com.khatana.ecommerce_backend.dto.order.PageResponseDTO;
+import com.khatana.ecommerce_backend.dto.order.*;
 
 public interface OrderService {
 
@@ -12,5 +10,9 @@ public interface OrderService {
 
     OrderDetailResponseDTO getOrderById(Long orderId);
 
-    void updateOrderStatus(Long orderId,String status);
+    void updateOrderStatus(Long orderId, String status);
+
+    void cancelOrder(Long orderId);
+
+    PageResponseDTO<OrderResponseDTO> getAllOrders(int page, int size);
 }
