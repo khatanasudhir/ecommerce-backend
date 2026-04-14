@@ -19,11 +19,46 @@ public class ProductController {
     private final ProductService productService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
-    public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO request) {
-        return productService.createProduct(request);
+    @PostMapping
+    public ApiResponse<ProductResponseDTO> createProduct(
+            @RequestBody ProductRequestDTO request) {
+
+        return new ApiResponse<>(
+                true,
+                "Product created successfully",
+                productService.createProduct(request)
+        );
     }
-    @GetMapping("/all")
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public ApiResponse<ProductResponseDTO> updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductRequestDTO request) {
+
+        return new ApiResponse<>(
+                true,
+                "Product updated successfully",
+                productService.updateProduct(id, request)
+        );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteProduct(@PathVariable Long id) {
+
+        productService.deleteProduct(id);
+
+        return new ApiResponse<>(
+                true,
+                "Product deleted successfully",
+                null
+        );
+    }
+
+
+    @GetMapping
     public ApiResponse<Page<ProductResponseDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -31,18 +66,13 @@ public class ProductController {
 
         return new ApiResponse<>(
                 true,
-                "Product fetched Successfully",
+                "Products fetched successfully",
                 productService.getAllProducts(page, size, sortBy)
         );
     }
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-    }
 
-    @GetMapping
-    public Page<ProductResponseDTO> getProducts(
+    @GetMapping("/search")
+    public ApiResponse<Page<ProductResponseDTO>> searchProducts(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) BigDecimal minPrice,
@@ -50,13 +80,22 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
-        return productService.searchProducts(
-                name,
-                categoryId,
-                minPrice,
-                maxPrice,
-                page,
-                size
+        return new ApiResponse<>(
+                true,
+                "Filtered products fetched",
+                productService.searchProducts(
+                        name, categoryId, minPrice, maxPrice, page, size
+                )
+        );
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<ProductResponseDTO> getProductById(@PathVariable Long id) {
+
+        return new ApiResponse<>(
+                true,
+                "Product fetched successfully",
+                productService.getProductById(id)
         );
     }
 }
